@@ -16,7 +16,6 @@ import com.tddevelopment.loitr.model.*
 import com.tddevelopment.loitr.service.GeofenceApp
 import com.tddevelopment.loitr.utils.difference
 import kotlinx.coroutines.*
-import java.time.Duration
 import java.util.*
 
 class MainActivity : BaseActivity() {
