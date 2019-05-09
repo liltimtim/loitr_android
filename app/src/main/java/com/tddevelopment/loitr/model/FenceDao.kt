@@ -19,6 +19,9 @@ interface FenceDao {
 
     @Delete
     fun delete(event: FenceEvent)
+
+    @Query("DELETE FROM FenceEvent")
+    fun deleteAll()
 }
 
 class Converters {
