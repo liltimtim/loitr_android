@@ -4,4 +4,5 @@
     <string name="today_no_data_summary">You have not arrived at your designated loitering location. I don\'t think you\'ve loitered enough today!</string>
     <string name="arrived_no_depart_summary">You arrived at %s and have not departed yet.  So far you have spent %s loitering.</string>
     <string name="arrived_departed_summary">You arrived at %s and you departed at %s.  You spent %s loitering today!  Good job.</string>
+    <string name="not_loitered_enough">You have not loitered enough today!</string>
 </resources>
