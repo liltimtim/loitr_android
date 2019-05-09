@@ -14,6 +14,9 @@ interface FenceDao {
     @Query("SELECT * FROM FenceEvent WHERE date BETWEEN :start AND :end ORDER BY date ASC")
     fun findBetweenDates(start: String, end: String): List<FenceEvent>
 
+    @Query("SELECT * FROM FenceEvent WHERE date BETWEEN :start AND :end AND type=:eventType ORDER BY date ASC")
+    fun findBetweenDates(eventType: String, start: String, end: String): List<FenceEvent>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun create(event: FenceEvent)
 
