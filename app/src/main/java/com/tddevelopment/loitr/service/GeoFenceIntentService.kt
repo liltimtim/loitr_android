@@ -13,6 +13,7 @@ import com.tddevelopment.loitr.R
 import com.tddevelopment.loitr.model.FenceDao
 import com.tddevelopment.loitr.model.FenceEvent
 import com.tddevelopment.loitr.model.LoitrDatabase
+import com.tddevelopment.loitr.model.toHourString
 import java.util.*
 
 
@@ -38,14 +39,15 @@ class GeoFenceIntentService : JobIntentService() {
         }
 
         val transition = geoFenceEvent.geofenceTransition
-
+        val calendar = Calendar.getInstance(TimeZone.getDefault())
+        calendar.time = Date()
         when (transition) {
             Geofence.GEOFENCE_TRANSITION_ENTER -> {
                 Log.i(javaClass.simpleName, "User entered geofenced area")
                 val fences = geoFenceEvent.triggeringGeofences
                 fences.forEach {
                     Log.i(javaClass.simpleName, "Entered ID ${it.requestId}")
-                    NoteManager.notify("", "Entered Geofence ${it.requestId}", this, noteServiceManager)
+                    NoteManager.notify("", "Entered Geofence ${it.requestId} at ${calendar.time.toHourString()}", this, noteServiceManager)
                     LoitrDatabase.getInstance(this).fenceDao().create(FenceEvent(null, FenceEvent.EventType.ENTERED, Date()))
                 }
 
@@ -55,8 +57,9 @@ class GeoFenceIntentService : JobIntentService() {
                 NoteManager.notify("", "Exited Geofence", this, noteServiceManager)
                 Log.i(javaClass.simpleName, "User exited geofenced area")
                 val fences = geoFenceEvent.triggeringGeofences
+
                 fences.forEach {
-                    NoteManager.notify("", "Exiting ID ${it.requestId}", this, noteServiceManager)
+                    NoteManager.notify("", "Exiting ID ${it.requestId} at ${calendar.time.toHourString()}", this, noteServiceManager)
                     LoitrDatabase.getInstance(this).fenceDao().create(FenceEvent(null, FenceEvent.EventType.EXITED, Date()))
                 }
             }

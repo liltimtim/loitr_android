@@ -106,19 +106,24 @@ class MainActivity : BaseActivity() {
             val start = async { arrival(Date()) }.await()
             val end = async { departure(Date()) }.await()
             val summary = summary(start, end)
+            var summaryOrNull:String
             withContext(Dispatchers.Main) {
                 if (start == null) {
                     summaryTextView.text = getString(R.string.today_no_data_summary)
                 } else {
                     if (end != null) {
 
-                        val summaryOrNull:String
+
                         if (summary != null) {
                             summaryOrNull = "${summary?.first}h ${summary?.second}m ${summary?.third}s"
                         } else {
                             summaryOrNull = getString(R.string.today_no_data_summary)
                         }
                         summaryTextView.text = getString(R.string.arrived_departed_summary, start?.toHourString() ?: "", end?.toHourString() ?: "", summaryOrNull)
+                    } else {
+                        val summary = summary(start, end)
+                        summaryOrNull = "${summary?.first}h ${summary?.second}m ${summary?.third}s"
+                        summaryTextView.text = getString(R.string.arrived_no_depart_summary, start?.toHourString() ?: "", summaryOrNull)
                     }
                 }
             }
