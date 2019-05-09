@@ -10,10 +10,15 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
 import com.tddevelopment.loitr.R
+import com.tddevelopment.loitr.model.FenceDao
+import com.tddevelopment.loitr.model.FenceEvent
+import com.tddevelopment.loitr.model.LoitrDatabase
 import java.util.*
 
 
 class GeoFenceIntentService : JobIntentService() {
+
+    private lateinit var noteServiceManager: NotificationManager
 
     companion object {
         fun enqueueWork(context: Context?, intent: Intent?) {
@@ -24,6 +29,7 @@ class GeoFenceIntentService : JobIntentService() {
     }
 
     override fun onHandleWork(p0: Intent) {
+        noteServiceManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val geoFenceEvent = GeofencingEvent.fromIntent(p0)
         if(geoFenceEvent.hasError()) {
             val message = GeofenceStatusCodes.getStatusCodeString(geoFenceEvent.errorCode)
@@ -39,33 +45,22 @@ class GeoFenceIntentService : JobIntentService() {
                 val fences = geoFenceEvent.triggeringGeofences
                 fences.forEach {
                     Log.i(javaClass.simpleName, "Entered ID ${it.requestId}")
-                    notificationFire("Entered Geofence ${it.requestId}")
+                    NoteManager.notify("", "Entered Geofence ${it.requestId}", this, noteServiceManager)
+                    LoitrDatabase.getInstance(this).fenceDao().create(FenceEvent(null, FenceEvent.EventType.ENTERED, Date()))
                 }
 
             }
 
             Geofence.GEOFENCE_TRANSITION_EXIT -> {
-                notificationFire("Exited Geofence")
+                NoteManager.notify("", "Exited Geofence", this, noteServiceManager)
                 Log.i(javaClass.simpleName, "User exited geofenced area")
                 val fences = geoFenceEvent.triggeringGeofences
                 fences.forEach {
-                    Log.i(javaClass.simpleName, "Exiting ID ${it.requestId}")
-                    notificationFire("Exited ID ${it.requestId}")
+                    NoteManager.notify("", "Exiting ID ${it.requestId}", this, noteServiceManager)
+                    LoitrDatabase.getInstance(this).fenceDao().create(FenceEvent(null, FenceEvent.EventType.EXITED, Date()))
                 }
             }
         }
-    }
-
-    private fun notificationFire(message: String) {
-        val notification = NotificationCompat.Builder(this, "LOITR_CHANNEL")
-            .setAutoCancel(true)
-            .setContentTitle(message)
-            .setContentText(message)
-            .setWhen(System.currentTimeMillis())
-            .setSmallIcon(R.drawable.ic_custom_note_icon)
-            .build()
-        val noteManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        noteManager.notify(Random(10).nextInt(), notification)
     }
 
 }

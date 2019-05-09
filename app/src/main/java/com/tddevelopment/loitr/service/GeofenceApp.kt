@@ -43,18 +43,18 @@ class GeofenceApp : Application() {
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setNotificationResponsiveness(5000)
             .build()
-        val fenceLoiter = Geofence.Builder()
-            .setRequestId("Work Dwell")
-            .setCircularRegion(33.4770, -81.9688, 250f)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
-            .setExpirationDuration(Geofence.NEVER_EXPIRE)
-            .setLoiteringDelay(5000)
-            .setNotificationResponsiveness(5000)
-            .build()
+//        val fenceLoiter = Geofence.Builder()
+//            .setRequestId("Work Dwell")
+//            .setCircularRegion(33.4770, -81.9688, 250f)
+//            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
+//            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+//            .setLoiteringDelay(5000)
+//            .setNotificationResponsiveness(5000)
+//            .build()
         val fenceIntent = getRepo().geofencePendingIntent
         geoClient.addGeofences(
-            GeofencingRequest.Builder().setInitialTrigger(Geofence.GEOFENCE_TRANSITION_EXIT).addGeofences(
-                listOf(fenceEnter, fenceExit, fenceLoiter)
+            GeofencingRequest.Builder().setInitialTrigger(Geofence.GEOFENCE_TRANSITION_DWELL).addGeofences(
+                listOf(fenceEnter, fenceExit)
             ).build(), fenceIntent
         ).run {
             addOnSuccessListener {

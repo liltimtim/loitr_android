@@ -10,15 +10,20 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import android.widget.TextView
 import com.tddevelopment.loitr.R
+import com.tddevelopment.loitr.model.*
 import com.tddevelopment.loitr.service.GeofenceApp
+import kotlinx.coroutines.*
+import java.util.*
 
 class MainActivity : BaseActivity() {
+
+    private lateinit var summaryTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val noteManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -28,7 +33,20 @@ class MainActivity : BaseActivity() {
             val channel = NotificationChannel("LOITR_CHANNEL", name, importance).apply { description = descriptionText }
             noteManager.createNotificationChannel(channel)
         }
+
+        summaryTextView = findViewById(R.id.today_summary_text_view)
+
+        summaryTextView.text = getString(R.string.today_no_data_summary)
+
         registerFenceMonitoring()
+
+        GlobalScope.launch(Dispatchers.IO) {
+            val events = async { LoitrDatabase.getInstance(applicationContext).fenceDao().findBetweenDates(Date().startOfDay().toTimestamp(), Date().endOfDay().toTimestamp()) }.await()
+            withContext(Dispatchers.Main) {
+                Log.i(javaClass.simpleName, "$events")
+                summaryTextView.text = getString(R.string.arrived_no_depart_summary, events.first()?.date.toHourString() ?: "", "")
+            }
+        }
     }
 
     private fun registerFenceMonitoring() {
@@ -53,8 +71,6 @@ class MainActivity : BaseActivity() {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 999)
         }
     }
-
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
